@@ -1,6 +1,6 @@
 # [MiLoRA: Harnessing Minor Singular Components for Parameter-Efficient LLM Finetuning](https://arxiv.org/abs/2406.09044)
 
-The official repository containing the introduction, code, and reproduction instructions for our paper: [MiLoRA: Harnessing Minor Singular Components for Parameter-Efficient LLM Finetuning](https://arxiv.org/abs/2406.09044).
+The official repository containing the introduction and code for our NAACL 2025 paper: [MiLoRA: Harnessing Minor Singular Components for Parameter-Efficient LLM Finetuning](https://arxiv.org/abs/2406.09044).
 
 <p align="center">
   <a href="#-news">| 🔥 News</a> |
@@ -19,7 +19,7 @@ The official repository containing the introduction, code, and reproduction inst
 
 # 🔥 News
 - Jan 2025: Our paper has been accepted by NAACL 2025 main conference.
-- Oct 2024: We released our code and reproducing instructions.
+- Oct 2024: We released our code and quick start.
 - May 2024: We released our paper on [arxiv](https://arxiv.org/abs/2406.09044).
 
 # 💡 Motivation
