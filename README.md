@@ -6,18 +6,19 @@ The official repository containing the introduction, code, and reproduction inst
   <a href="#-news">| 🔥 News</a> |
   <a href="#-motivation">💡 Motivation</a> |
   <a href="#-milora">🌈 Method</a> |
-  <a href="#-reproduce">🧪 Reproduce |</a> 
 </p>
 
 <p align="center">
-  <a href="#-experiment-results">| 🔬 Results</a> |
-  <a href="#-resources">🪵 Resources</a> |
+  <!-- <a href="#-experiment-results">| 🔬 Results</a> |
+  <a href="#-resources">🪵 Resources</a> | -->
+  <a href="#️-quick-start">| ⚡️ Quick Start |</a>
   <a href="#-citation">📓 Citation</a> | 
   <a href="https://arxiv.org/abs/2406.09044">📃 Paper |</a>
 
 </p>
 
 # 🔥 News
+- Jan 2025: Our paper has been accepted by NAACL 2025 main conference.
 - Oct 2024: We released our code and reproducing instructions.
 - May 2024: We released our paper on [arxiv](https://arxiv.org/abs/2406.09044).
 
@@ -34,10 +35,10 @@ The official repository containing the introduction, code, and reproduction inst
 <span id="MiLoRA"></span>
 ![MiLoRA](./assets/imgs/MiLoRA.png)
 
-# 🧪 Reproduce
+# ⚡️ Quick Start
 
 ## 1. Commonsense Reasoning
-We use the code from [LLM-Adapters repo](https://github.com/AGI-Edgerunners/LLM-Adapters) to do commensense reasoning tasks, compare to the lora implement in LLM-Adapters, we only modified it with our LoRA initialization. We diectly use their setting in other experiments without notifications.
+We use the code from [LLM-Adapters repo](https://github.com/AGI-Edgerunners/LLM-Adapters) to do commensense reasoning tasks, compare to the lora implement in LLM-Adapters, we only modified it with our LoRA initialization. We diectly use their setting in other experiments without modifications.
 
 ## 2. Math Reasoning
 Our math reasoning code is modified from [PiSSA](https://github.com/GraphPKU/PiSSA).
@@ -81,7 +82,7 @@ We use the implementation in [open-instruct](https://github.com/allenai/open-ins
 ## 4. Visual Instruction tuning
 We use the implementation in [DoRA](https://github.com/NVlabs/DoRA/tree/main/visual_instruction_tuning), for hyperparameters, we directly followed the LoRA setting in [Visual Instruction Tuning](https://proceedings.neurips.cc/paper_files/paper/2023/file/6dcf277ea32ce3288914faf369fe6de0-Paper-Conference.pdf).
 
-# 🔬 Experiment Results
+<!-- # 🔬 Experiment Results
 ## 1. Commonsense Reasoning
 <span id="Commonsense_reasoning_result"></span>
 ![Commonsense_reasoning_result](./assets/imgs/Commonsense_reasoning_result.png)
@@ -100,10 +101,10 @@ We use the implementation in [DoRA](https://github.com/NVlabs/DoRA/tree/main/vis
 
 ## 5. Compare with more PEFTs
 <span id="Compare"></span>
-![Compare](./assets/imgs/Compare.png)
+![Compare](./assets/imgs/Compare.png) -->
 
-# 🪵 Resources
-Our checkpoints will be upload to huggingface.
+<!-- # 🪵 Resources
+Our checkpoints will be upload to huggingface. -->
 
 # 📓 Citation
 If you find this repo is useful, please cite us as:
