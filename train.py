@@ -42,7 +42,6 @@ class TrainingArguments(transformers.TrainingArguments):
     dataset_field: List[str] = field(
         default=None, metadata={"help": "Fields of dataset input and output."}
     )
-    # optim: str = field(default="adamw_torch")
     model_max_length: int = field(default=512, metadata={"help": "Maximum sequence length. Sequences will be right padded (and possibly truncated)."},)
     lora_r: int = field(default=None, metadata={"help": "The rank of the adapter. When passing `None` and `adapter_name_or_path` is also `None`, full fine-tuning is used."})
     lora_alpha: int = field(default=None, metadata={"help": "The rank of the adapter. When passing `None` and `adapter_name_or_path` is also `None`, full fine-tuning is used."})
@@ -59,13 +58,6 @@ class TrainingArguments(transformers.TrainingArguments):
             ),
         },
     )
-    method_type: str = field(default="lora", metadata={"help": "The method type of the adapter."})
-    # use_dora: bool = field(default=False, metadata={"help": "Whether to use Dora."})
-    # use_rslora: bool = field(default=False, metadata={"help": "Whether to use RSLora."})
-    # use_adalora: bool = field(default=False, metadata={"help": "Whether to use AdaLora."})
-    # loraplus_lr_ratio: int = field(default=4, metadata={"help": "The ratio of the learning rate of the LoRA+."})
-    
-
 
 def safe_save_model_for_hf_trainer(trainer: transformers.Trainer, output_dir: str):
     """Collects the state dict and dump to disk."""
@@ -172,10 +164,6 @@ def train():
         target_modules = script_args.target_modules[0].split(',')
     else:
         target_modules = ["q_proj", "k_proj", "v_proj", "up_proj", "down_proj"]
-    if script_args.method_type == "lora" or script_args.method_type == "pissa" or script_args.method_type == "milora":
-        script_args.use_rslora = False
-        script_args.use_dora = False
-        script_args.use_adalora = False
 
     print(script_args)    
     model = transformers.AutoModelForCausalLM.from_pretrained(
