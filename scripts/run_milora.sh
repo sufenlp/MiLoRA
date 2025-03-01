@@ -1,5 +1,7 @@
 # define your own save directory
-root=$1
+method=$1
+base_model=$2
+root=$3
 mkdir -p $root
 math_root=$root/math
 code_root=$root/code
@@ -59,7 +61,7 @@ train() {
     
     gradient_accumulation_steps=$((TOTAL_BATCH_SIZE / (per_device_train_batch_size * num_GPUs)))
 
-    OUTPUT_name=${SETTING}-${METHOD}-LR-${LR}-${DATA_NUM}-EPOCHS-${EPOCHS}-rank-${RANK}
+    OUTPUT_name=${SETTING}-${METHOD}-LR-${LR}-${395K}-EPOCHS-${EPOCHS}-rank-${RANK}
 
     LOGNAME=logs/${TRAIN_TASK}-${OUTPUT_name}.log
 
@@ -67,9 +69,7 @@ train() {
         LORA_ALPHA=$(($RANK))
     fi
     
-    
-    echo "LORA_ALPHA: $LORA_ALPHA"
-    
+        
     OUTPUT=${root}/$OUTPUT_name
 
     deepspeed --master_port $MASTER_PORT --include localhost:$GPUS train.py \
@@ -81,7 +81,7 @@ train() {
         --lora_dropout $DROPOUT \
         --target_modules $TARGET \
         --data_path $DATA \
-        --dataset_split "$data_num" \
+        --dataset_split "$train[:]" \
         --dataset_field query $field_2 \
         --model_max_length $MAX_LEGNTH \
         --num_train_epochs $EPOCHS \
@@ -107,17 +107,16 @@ train() {
 }
 
 
-# BASE_MODEL=$1 
-# EPOCHS=$2 
+# BASE_MODEL=$1
+# EPOCHS=$2
 # RANK=$3
-# GPUS=$4 
-# lr=$5 
-# MASTER_PORT=$6 
-# DATA=$7 
-# SETTING=$8 
-# METHOD=$9
+# GPUS=$4
+# MASTER_PORT=$5
+# DATA=$6
+# SETTING=$7
+# METHOD=$8
+ 
 
-train ./svd_init_models/LLM-Adapters-rank-64-min 3 64 "0,1,2,3,4,5,6,7" 29500 meta-math/MetaMathQA LLM-Adapters milora 
+# train ./svd_init_models/LLM-Adapters-rank-64-min 3 64 "0,1,2,3,4,5,6,7" 29500 meta-math/MetaMathQA LLM-Adapters milora
 
-
-
+train $base_model 3 64 "0,1,2,3,4,5,6,7" 29500 meta-math/MetaMathQA LLM-Adapters $method 

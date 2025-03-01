@@ -42,7 +42,7 @@ class TrainingArguments(transformers.TrainingArguments):
     dataset_field: List[str] = field(
         default=None, metadata={"help": "Fields of dataset input and output."}
     )
-    optim: str = field(default="adamw_torch")
+    # optim: str = field(default="adamw_torch")
     model_max_length: int = field(default=512, metadata={"help": "Maximum sequence length. Sequences will be right padded (and possibly truncated)."},)
     lora_r: int = field(default=None, metadata={"help": "The rank of the adapter. When passing `None` and `adapter_name_or_path` is also `None`, full fine-tuning is used."})
     lora_alpha: int = field(default=None, metadata={"help": "The rank of the adapter. When passing `None` and `adapter_name_or_path` is also `None`, full fine-tuning is used."})
@@ -60,10 +60,10 @@ class TrainingArguments(transformers.TrainingArguments):
         },
     )
     method_type: str = field(default="lora", metadata={"help": "The method type of the adapter."})
-    use_dora: bool = field(default=False, metadata={"help": "Whether to use Dora."})
-    use_rslora: bool = field(default=False, metadata={"help": "Whether to use RSLora."})
-    use_adalora: bool = field(default=False, metadata={"help": "Whether to use AdaLora."})
-    loraplus_lr_ratio: int = field(default=4, metadata={"help": "The ratio of the learning rate of the LoRA+."})
+    # use_dora: bool = field(default=False, metadata={"help": "Whether to use Dora."})
+    # use_rslora: bool = field(default=False, metadata={"help": "Whether to use RSLora."})
+    # use_adalora: bool = field(default=False, metadata={"help": "Whether to use AdaLora."})
+    # loraplus_lr_ratio: int = field(default=4, metadata={"help": "The ratio of the learning rate of the LoRA+."})
     
 
 
@@ -172,26 +172,11 @@ def train():
         target_modules = script_args.target_modules[0].split(',')
     else:
         target_modules = ["q_proj", "k_proj", "v_proj", "up_proj", "down_proj"]
-    if "lora+" in script_args.method_type or "loraplus" in script_args.method_type:
-        method_type = script_args.method_type.split("-")[0]
-        script_args.loraplus_lr_ratio = int(script_args.method_type.split("-")[1])
-        script_args.method_type = method_type
-    if script_args.method_type == "lora" or script_args.method_type == "pissa" or script_args.method_type == "milora" or script_args.method_type == "lora+" or script_args.method_type == "loraplus":
+    if script_args.method_type == "lora" or script_args.method_type == "pissa" or script_args.method_type == "milora":
         script_args.use_rslora = False
         script_args.use_dora = False
         script_args.use_adalora = False
-    elif script_args.method_type == "rslora":
-        script_args.use_rslora = True
-        script_args.use_dora = False
-        script_args.use_adalora = False
-    elif script_args.method_type == "dora":
-        script_args.use_rslora = False
-        script_args.use_dora = True
-        script_args.use_adalora = False
-    elif script_args.method_type == "adalora":
-        script_args.use_rslora = False
-        script_args.use_dora = False
-        script_args.use_adalora = True
+
     print(script_args)    
     model = transformers.AutoModelForCausalLM.from_pretrained(
         script_args.model_name_or_path,
@@ -205,34 +190,17 @@ def train():
         model = PeftModel.from_pretrained(model, script_args.model_name_or_path, subfolder="./lora", is_trainable=True)
     elif script_args.lora_r is not None:
         print(f"Initilized {script_args.init_lora_weights} layers")
-        if script_args.use_adalora:
-            lora_config = AdaLoraConfig(
-            task_type=TaskType.CAUSAL_LM,
-            target_r=script_args.lora_r,
-            lora_alpha=script_args.lora_alpha,
-            target_modules=target_modules,
-            total_step=int(24688),
+
+        lora_config = LoraConfig(
+            r=script_args.lora_r,
+            lora_alpha=script_args.lora_r if script_args.lora_alpha is None else script_args.lora_alpha,
+            init_lora_weights = script_args.init_lora_weights,
+            target_modules = target_modules,
             lora_dropout=script_args.lora_dropout,
-            deltaT = 100,
-            init_r = int(script_args.lora_r*1.5),
-            tfinal = 100,
-            )
-        else:
-            if script_args.use_rslora + script_args.use_dora > 1:
-                raise ValueError("At most one of use_rslora, use_dora can be True.")
-            lora_config = LoraConfig(
-                r=script_args.lora_r,
-                lora_alpha=script_args.lora_r if script_args.lora_alpha is None else script_args.lora_alpha,
-                init_lora_weights = script_args.init_lora_weights,
-                target_modules = target_modules,
-                lora_dropout=script_args.lora_dropout,
-                use_rslora=script_args.use_rslora,
-                use_dora=script_args.use_dora,
-                bias="none",
-                task_type="CAUSAL_LM",
-            )
-            print(lora_config)
-        
+            bias="none",
+            task_type="CAUSAL_LM",
+        )
+        print(lora_config)
         model = get_peft_model(model, lora_config)
     else:
         print("Full Parameter Fine-Tuning")
@@ -266,27 +234,7 @@ def train():
     data_collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
     data_module = dict(train_dataset=train_dataset, data_collator=data_collator)
 
-    if script_args.method_type == "lora+" or script_args.method_type == "loraplus":
-        from peft.optimizers import create_loraplus_optimizer
-        from torch.optim import AdamW
-        ## TODO: verify the correctness of the optimizer cls, utlization of the lr, and add arguments for the loraplus_lr_ratio
-        optimizer = create_loraplus_optimizer(
-            model = model,
-            optimizer_cls = AdamW,
-            lr = script_args.learning_rate,
-            loraplus_lr_ratio=script_args.loraplus_lr_ratio,
-            )
-
-        # scheduler = use constant scheduler in the paper
-        class CustomTrainer(Trainer):
-            def create_optimizer_and_scheduler(self, num_training_steps: int):
-                self.optimizer = optimizer  # 
-
-        trainer = CustomTrainer(model=model, tokenizer=tokenizer, args=script_args, **data_module)
-
-
-    else:
-        trainer = Trainer(model=model, tokenizer=tokenizer, args=script_args, **data_module)
+    trainer = Trainer(model=model, tokenizer=tokenizer, args=script_args, **data_module)
     model.config.use_cache = False
     trainer.train()
     trainer.save_state()
