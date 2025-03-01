@@ -1,12 +1,10 @@
 # define your own save directory
 method=$1
 base_model=$2
-root=$3
+save_root=$3
+mkdir -p $save_root
+root=$save_root/math
 mkdir -p $root
-math_root=$root/math
-code_root=$root/code
-mkdir -p $math_root
-mkdir -p $code_root
 
 mkdir -p results
 mkdir -p results/gsm8k
@@ -17,7 +15,7 @@ math_merge_and_infer(){
     BASE_MODEL=$1
     OUTPUT_name=$2
     GPU_ID=$3
-    OUTPUT=$math_root/$OUTPUT_name
+    OUTPUT=$root/$OUTPUT_name
     adapter_path=$OUTPUT/ft
     output_path=${adapter_path}-merged
     CUDA_VISIBLE_DEVICES=$GPU_ID python merge_adapter_to_base_model.py --base_model $BASE_MODEL --adapter $adapter_path --output_path $output_path
@@ -35,14 +33,6 @@ train() {
     DATA=$6
     SETTING=$7
     METHOD=$8
-    
-    
-    if [ "$DATA" = "meta-math/MetaMathQA" ]; then
-        field_2=response
-        root=$math_root
-        TRAIN_TASK=math
-        per_device_train_batch_size=1
-    fi
 
     num_GPUs=$(echo $GPUS | tr ',' '\n' | wc -l)
 
@@ -63,7 +53,7 @@ train() {
 
     OUTPUT_name=${SETTING}-${METHOD}-LR-${LR}-${395K}-EPOCHS-${EPOCHS}-rank-${RANK}
 
-    LOGNAME=logs/${TRAIN_TASK}-${OUTPUT_name}.log
+    LOGNAME=logs/${math}-${OUTPUT_name}.log
 
     if [[ "$OUTPUT_name" == *"pissa"* ]] || [[ "$OUTPUT_name" == *"milora"* ]]; then
         LORA_ALPHA=$(($RANK))
@@ -82,7 +72,7 @@ train() {
         --target_modules $TARGET \
         --data_path $DATA \
         --dataset_split "$train[:]" \
-        --dataset_field query $field_2 \
+        --dataset_field query response \
         --model_max_length $MAX_LEGNTH \
         --num_train_epochs $EPOCHS \
         --per_device_train_batch_size $per_device_train_batch_size \
@@ -99,10 +89,10 @@ train() {
         --method_type $METHOD \
         --report_to tensorboard &> $LOGNAME
     
-    if [ "$TRAIN_TASK" = "math" ]; then
-        device=$(echo $GPUS | cut -d',' -f1)
-        math_merge_and_infer $BASE_MODEL $OUTPUT_name $device
-    fi
+
+    device=$(echo $GPUS | cut -d',' -f1)
+    math_merge_and_infer $BASE_MODEL $OUTPUT_name $device
+
 
 }
 
@@ -115,8 +105,5 @@ train() {
 # DATA=$6
 # SETTING=$7
 # METHOD=$8
- 
-
-# train ./svd_init_models/LLM-Adapters-rank-64-min 3 64 "0,1,2,3,4,5,6,7" 29500 meta-math/MetaMathQA LLM-Adapters milora
 
 train $base_model 3 64 "0,1,2,3,4,5,6,7" 29500 meta-math/MetaMathQA LLM-Adapters $method 
