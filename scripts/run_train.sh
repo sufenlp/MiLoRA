@@ -2,7 +2,6 @@
 method=$1
 base_model=$2
 save_root=$3
-mkdir -p $save_root
 root=$save_root/math
 mkdir -p $root
 
