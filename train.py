@@ -21,7 +21,7 @@ import torch
 import transformers
 from transformers import Trainer
 from datasets import load_dataset
-from peft import LoraConfig, get_peft_model, PeftModel, AdaLoraConfig, TaskType
+from peft import LoraConfig, get_peft_model, PeftModel
 
 IGNORE_INDEX = -100
 PROMPT = (
