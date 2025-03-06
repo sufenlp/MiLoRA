@@ -47,7 +47,7 @@ train() {
         TARGET="q_proj,k_proj,v_proj,up_proj,down_proj"
     fi
 
-    
+    per_device_train_batch_size=2
     gradient_accumulation_steps=$((TOTAL_BATCH_SIZE / (per_device_train_batch_size * num_GPUs)))
 
     OUTPUT_name=${SETTING}-${METHOD}-LR-${LR}-${395K}-EPOCHS-${EPOCHS}-rank-${RANK}
