@@ -13,7 +13,7 @@ The official repository containing the introduction and code for our NAACL 2025 
   <a href="#-resources">🪵 Resources</a> | -->
   <a href="#️-quick-start">| ⚡️ Quick Start |</a>
   <a href="#-citation">📓 Citation</a> | 
-  <a href="https://arxiv.org/abs/2406.09044">📃 Paper |</a>
+  <a href="https://aclanthology.org/2025.naacl-long.248/">📃 Paper |</a>
 
 </p>
 
